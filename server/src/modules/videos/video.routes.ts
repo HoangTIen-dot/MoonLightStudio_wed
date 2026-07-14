@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { isValidObjectId } from 'mongoose';
 import { z } from 'zod';
+import { filterVideosWithPublishedProjects } from './public-video-response.js';
 import { VideoModel } from './video.model.js';
 
 const objectIdSchema = z.string().refine((value) => isValidObjectId(value), 'Invalid object id');
@@ -100,9 +101,18 @@ publicVideoRoutes.get('/', async (req, res, next) => {
 
   try {
     const filter = projectId ? { isPublished: true, projectId } : { isPublished: true };
-    const videos = await VideoModel.find(filter).populate('projectId').sort({ displayOrder: 1, createdAt: -1 });
+    const videos = await VideoModel.find(filter)
+      .populate({
+        path: 'projectId',
+        match: { isPublished: true },
+        populate: {
+          path: 'brandId',
+          match: { isPublished: true },
+        },
+      })
+      .sort({ displayOrder: 1, createdAt: -1 });
 
-    res.json({ videos });
+    res.json({ videos: filterVideosWithPublishedProjects(videos) });
   } catch (error) {
     next(error);
   }
