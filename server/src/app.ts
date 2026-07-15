@@ -1,5 +1,7 @@
 import cors from 'cors';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import { env } from './config/env.js';
 import { requireAdmin } from './middlewares/auth.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
@@ -12,6 +14,29 @@ import { adminVideoRoutes, publicVideoRoutes } from './modules/videos/video.rout
 
 export const app = express();
 
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 600,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const createLeadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(helmet());
+app.use(globalLimiter);
 app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
 app.use(express.json({ limit: '2mb' }));
 
@@ -19,10 +44,11 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth', authRoutes);
 
 app.use('/api/public/brands', publicBrandRoutes);
-app.use('/api/public/leads', publicLeadRoutes);
+app.use('/api/public/leads', createLeadLimiter, publicLeadRoutes);
 app.use('/api/public/projects', publicProjectRoutes);
 app.use('/api/public/videos', publicVideoRoutes);
 

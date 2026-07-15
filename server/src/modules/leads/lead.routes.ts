@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { isValidObjectId } from 'mongoose';
 import { z } from 'zod';
+import { sendLeadNotification } from './lead-notification.js';
 import { LeadModel } from './lead.model.js';
 
 const createLeadSchema = z
@@ -39,6 +40,24 @@ publicLeadRoutes.post('/', async (req, res, next) => {
 
   try {
     const lead = await LeadModel.create(result.data);
+    const notificationResult = await sendLeadNotification({
+      name: lead.name,
+      company: lead.company,
+      email: lead.email,
+      phone: lead.phone,
+      message: lead.message,
+      status: lead.status,
+      createdAt: lead.createdAt,
+    });
+
+    if (notificationResult.status === 'skipped') {
+      console.warn(`Lead notification skipped: ${notificationResult.reason}`);
+    }
+
+    if (notificationResult.status === 'failed') {
+      console.error(`Lead notification failed: ${notificationResult.reason}`);
+    }
+
     res.status(201).json({ lead });
   } catch (error) {
     next(error);
