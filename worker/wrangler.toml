@@ -5,7 +5,7 @@ compatibility_date = "2026-07-15"
 [[d1_databases]]
 binding = "DB"
 database_name = "moonlight-cms"
-database_id = "replace-with-cloudflare-d1-database-id"
+database_id = "f561f64e-ea16-4d04-ad15-7bc9333ef823"
 
 [vars]
 CLIENT_ORIGIN = "http://localhost:5173"

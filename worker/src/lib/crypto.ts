@@ -1,6 +1,6 @@
 import { base64ToBytes, bytesToBase64, textToBytes } from './encoding';
 
-const PBKDF2_ITERATIONS = 210_000;
+const PBKDF2_ITERATIONS = 100_000;
 const HASH_LENGTH_BITS = 256;
 
 export type PasswordHash = {
