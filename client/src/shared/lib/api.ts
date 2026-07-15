@@ -1,4 +1,19 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api';
+const LOCAL_API_BASE_URL = 'http://localhost:4000/api';
+const PRODUCTION_API_BASE_URL = 'https://moonlight-worker-api.huynhtien2809202.workers.dev/api';
+
+const isLocalHost = (hostname: string) => hostname === 'localhost' || hostname === '127.0.0.1';
+
+const getCurrentHostname = () => (typeof window === 'undefined' ? 'localhost' : window.location.hostname);
+
+export function resolveApiBaseUrl(configuredUrl?: string, hostname = getCurrentHostname()) {
+  if (configuredUrl) {
+    return configuredUrl;
+  }
+
+  return isLocalHost(hostname) ? LOCAL_API_BASE_URL : PRODUCTION_API_BASE_URL;
+}
+
+const API_BASE_URL = resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('adminToken');
