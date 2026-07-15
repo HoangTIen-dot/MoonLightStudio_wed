@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getPublicBrands, type Brand } from '../../brands/brand.service';
 import { marqueeRows } from '../homepage.data';
+import type { PublicCopy } from '../i18n';
 
 function getBrandTileUrl(imageUrl: string) {
   if (!imageUrl.includes('/image/upload/')) {
@@ -10,7 +11,11 @@ function getBrandTileUrl(imageUrl: string) {
   return imageUrl.replace('/image/upload/', '/image/upload/c_pad,w_1400,h_800,b_auto,f_auto,q_auto/');
 }
 
-export function MarqueeSection() {
+type MarqueeSectionProps = {
+  copy: PublicCopy['marquee'];
+};
+
+export function MarqueeSection({ copy }: MarqueeSectionProps) {
   const [brands, setBrands] = useState<Brand[]>([]);
 
   useEffect(() => {
@@ -53,10 +58,10 @@ export function MarqueeSection() {
     <section className="overflow-hidden bg-[#0C0C0C] py-16 sm:py-24">
       <div className="mb-8 flex items-center justify-between px-5 sm:px-10">
         <p className="text-sm font-light uppercase tracking-[0.3em] text-white/50">
-          {hasCmsBrands ? 'Selected brands' : 'Selected loops'}
+          {hasCmsBrands ? copy.cmsTitle : copy.fallbackTitle}
         </p>
         <p className="hidden text-sm font-light uppercase tracking-[0.3em] text-white/50 sm:block">
-          {hasCmsBrands ? 'Partner archive' : 'Motion archive'}
+          {hasCmsBrands ? copy.cmsMeta : copy.fallbackMeta}
         </p>
       </div>
       <div className="space-y-5">
@@ -91,7 +96,7 @@ export function MarqueeSection() {
                   <img
                     key={`${src}-${index}`}
                     src={src}
-                    alt="3D motion study"
+                    alt={copy.fallbackAlt}
                     className="h-44 w-72 shrink-0 rounded-[2rem] object-cover sm:h-64 sm:w-[28rem]"
                   />
                 ))}

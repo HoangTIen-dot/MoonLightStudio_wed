@@ -5,15 +5,22 @@ import heroRevealImage from '../../../assets/images/LOGO.png';
 import heroBaseImage from '../../../assets/images/LOGO_MoonLight.png';
 import { AnimatedText } from '../../../shared/components/AnimatedText';
 import { FadeIn } from '../../../shared/components/FadeIn';
+import type { PublicCopy, PublicLanguage } from '../i18n';
 import { RevealLayer } from './RevealLayer';
 
-export function HeroSection() {
+type HeroSectionProps = {
+  copy: PublicCopy;
+  language: PublicLanguage;
+  onLanguageChange: (language: PublicLanguage) => void;
+};
+
+export function HeroSection({ copy, language, onLanguageChange }: HeroSectionProps) {
   const mouse = useRef({ x: -999, y: -999 });
   const smooth = useRef({ x: -999, y: -999 });
   const rafRef = useRef<number | null>(null);
   const [cursorPos, setCursorPos] = useState({ x: -999, y: -999 });
-  const navItems = ['About', 'Services', 'Projects', 'Contact'];
   const [activeNavIndex, setActiveNavIndex] = useState(0);
+  const navTargets = ['about', 'services', 'projects', 'contact'];
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -62,10 +69,10 @@ export function HeroSection() {
               transform: `translateX(${activeNavIndex * 100}%)`,
             }}
           />
-          {navItems.map((item, index) => (
+          {copy.nav.map((item, index) => (
             <a
               key={item}
-              href={`#${item.toLowerCase()}`}
+              href={`#${navTargets[index]}`}
               onFocus={() => setActiveNavIndex(index)}
               onMouseEnter={() => setActiveNavIndex(index)}
               onClick={() => setActiveNavIndex(index)}
@@ -81,9 +88,24 @@ export function HeroSection() {
           href="#contact"
           className="hidden md:block bg-white text-gray-900 text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-gray-100"
         >
-          Contact
+          {copy.hero.contact}
         </a>
-        <button className="md:hidden text-white" aria-label="Open navigation">
+        <div className="flex items-center gap-1 rounded-full border border-white/25 bg-black/20 p-1 text-xs font-bold text-white">
+          {(['en', 'vi'] as PublicLanguage[]).map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => onLanguageChange(item)}
+              className={`rounded-full px-3 py-1 uppercase transition ${
+                language === item ? 'bg-white text-zinc-950' : 'text-white/70 hover:text-white'
+              }`}
+              aria-label={`${copy.languageLabel}: ${item.toUpperCase()}`}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+        <button className="md:hidden text-white" aria-label={copy.hero.openNavigation}>
           <Menu />
         </button>
       </nav>
@@ -93,9 +115,9 @@ export function HeroSection() {
         style={{ animationDelay: '0.7s' }}
       >
         <FadeIn>
-          <p className="mb-6 text-sm font-light uppercase tracking-[0.35em] text-white/45">Premium Post-Production</p>
+          <p className="mb-6 text-sm font-light uppercase tracking-[0.35em] text-white/45">{copy.hero.eyebrow}</p>
         </FadeIn>
-        <AnimatedText text="Striving to make the intangible a reality." />
+        <AnimatedText text={copy.hero.headline} />
       </div>
 
       <div
@@ -103,7 +125,7 @@ export function HeroSection() {
         style={{ animationDelay: '0.85s' }}
       >
         <p className="text-sm sm:text-base text-white/80 leading-relaxed">
-          Through quality storytelling and striking visuals, we deliver high-end cinematic solutions for global brands and film productions.
+          {copy.hero.body}
         </p>
       </div>
     </section>

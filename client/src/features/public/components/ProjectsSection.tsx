@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { getPublicVideos, type Video } from '../../videos/video.service';
-import { type Project as StaticProject, projects as staticProjects } from '../homepage.data';
+import { type Project as StaticProject } from '../homepage.data';
+import type { PublicCopy } from '../i18n';
 import type { Project as CmsProject } from '../../projects/project.service';
 
 type ProjectCardProps = {
   project: StaticProject;
   index: number;
+  copy: PublicCopy['projects'];
 };
 
-function ProjectCard({ project, index }: ProjectCardProps) {
+function ProjectCard({ project, index, copy }: ProjectCardProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const description = project.description || 'Selected production work presented as a focused case study.';
+  const description = project.description || copy.fallbackDescription;
   const hasLongDescription = description.length > 190;
   const titleLength = project.title.length;
   const titleSizeClass =
@@ -59,7 +61,7 @@ function ProjectCard({ project, index }: ProjectCardProps) {
             <div className="min-w-0">
               <div className="mb-5 flex items-center justify-between gap-5">
                 <span className="text-sm font-black text-white/70">0{index + 1}</span>
-                <span className="text-xs font-light uppercase tracking-[0.28em] text-white/40">Project</span>
+                <span className="text-xs font-light uppercase tracking-[0.28em] text-white/40">{copy.projectLabel}</span>
               </div>
               {project.brandLogoUrl ? (
                 <div className="mb-5 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2">
@@ -88,7 +90,7 @@ function ProjectCard({ project, index }: ProjectCardProps) {
                     onClick={() => setIsDescriptionExpanded((current) => !current)}
                     className="shrink-0 text-xs font-semibold uppercase tracking-[0.22em] text-white/70 transition hover:text-white"
                   >
-                    {isDescriptionExpanded ? 'See less' : 'See more'}
+                    {isDescriptionExpanded ? copy.seeLess : copy.seeMore}
                   </button>
                 ) : null}
               </div>
@@ -119,13 +121,13 @@ function resolveBrand(project: CmsProject | null) {
   return project.brandId;
 }
 
-function mapVideoToProject(video: Video): StaticProject {
+function mapVideoToProject(video: Video, copy: PublicCopy['projects']): StaticProject {
   const project = resolveProject(video);
   const brand = resolveBrand(project);
 
   return {
     title: project?.title ?? video.title,
-    type: project?.category ?? 'Vimeo Film',
+    type: project?.category ?? copy.vimeoFilm,
     image: project?.thumbnailUrl || 'https://images.unsplash.com/photo-1633355444132-695d5876cd00?auto=format&fit=crop&w=1400&q=85',
     brandName: brand?.name,
     brandLogoUrl: brand?.logoUrl,
@@ -134,7 +136,11 @@ function mapVideoToProject(video: Video): StaticProject {
   };
 }
 
-export function ProjectsSection() {
+type ProjectsSectionProps = {
+  copy: PublicCopy['projects'];
+};
+
+export function ProjectsSection({ copy }: ProjectsSectionProps) {
   const [cmsVideos, setCmsVideos] = useState<Video[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
 
@@ -167,8 +173,8 @@ export function ProjectsSection() {
   }, []);
 
   const projects = useMemo(
-    () => (cmsVideos.length ? cmsVideos.map(mapVideoToProject) : staticProjects),
-    [cmsVideos],
+    () => (cmsVideos.length ? cmsVideos.map((video) => mapVideoToProject(video, copy)) : copy.fallbackItems),
+    [cmsVideos, copy],
   );
 
   return (
@@ -176,24 +182,24 @@ export function ProjectsSection() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <p className="mb-4 text-sm font-light uppercase tracking-[0.35em] text-white/45">Projects</p>
+            <p className="mb-4 text-sm font-light uppercase tracking-[0.35em] text-white/45">{copy.eyebrow}</p>
             <h2 className="text-5xl font-black uppercase leading-none tracking-[-0.06em] text-white sm:text-7xl">
-              Sticky selected works
+              {copy.headline}
             </h2>
           </div>
           <p className="max-w-sm text-base leading-relaxed text-white/55">
-            Stacked case cards designed to feel like a compact gallery of finished worlds.
+            {copy.body}
           </p>
         </div>
         <div className="space-y-8">
           {isLoadingProjects ? (
             <div className="rounded-[2rem] border border-white/10 p-10 text-center text-sm uppercase tracking-[0.3em] text-white/45">
-              Loading projects
+              {copy.loading}
             </div>
           ) : null}
 
           {projects.map((project, index) => (
-            <ProjectCard key={project.title} project={project} index={index} />
+            <ProjectCard key={project.title} project={project} index={index} copy={copy} />
           ))}
         </div>
       </div>

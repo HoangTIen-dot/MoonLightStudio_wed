@@ -1,8 +1,13 @@
 import { decorativeImages } from '../homepage.data';
 import { AnimatedText } from '../../../shared/components/AnimatedText';
 import { FadeIn } from '../../../shared/components/FadeIn';
+import type { PublicCopy } from '../i18n';
 
-export function AboutSection() {
+type AboutSectionProps = {
+  copy: PublicCopy['about'];
+};
+
+export function AboutSection({ copy }: AboutSectionProps) {
   return (
     <section id="about" className="relative overflow-hidden bg-[#0C0C0C] px-5 py-24 sm:px-10 md:py-36">
       <img
@@ -17,16 +22,15 @@ export function AboutSection() {
       />
       <div className="relative z-10 mx-auto max-w-6xl">
         <FadeIn>
-          <p className="mb-6 text-sm font-light uppercase tracking-[0.35em] text-white/45">Who We Are</p>
+          <p className="mb-6 text-sm font-light uppercase tracking-[0.35em] text-white/45">{copy.eyebrow}</p>
         </FadeIn>
-        <AnimatedText text="Bridging the gap between imagination and reality." />
+        <AnimatedText text={copy.headline} />
         <FadeIn className="mt-10 flex flex-col items-start gap-8 md:ml-auto md:max-w-xl">
-          <p className="text-lg font-light leading-relaxed text-white/65">
-            Founded in 2018 in Ho Chi Minh City, Moonlight Studio is a premium post-production partner. We specialize in high-quality storytelling, CGI, and VFX for TV commercials and digital films.
-          </p>
-          <p className="text-lg font-light leading-relaxed text-white/65">
-            By leveraging advanced expertise, we provide visual solutions for global corporations and agencies that require both technical excellence and creative innovation.
-          </p>
+          {copy.paragraphs.map((paragraph) => (
+            <p key={paragraph} className="text-lg font-light leading-relaxed text-white/65">
+              {paragraph}
+            </p>
+          ))}
         </FadeIn>
       </div>
     </section>
