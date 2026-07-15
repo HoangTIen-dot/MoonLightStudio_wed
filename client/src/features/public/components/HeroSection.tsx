@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Menu } from 'lucide-react';
-import siteLogo from '../../../assets/images/moon.png';
-import heroRevealImage from '../../../assets/images/LOGO.png';
-import heroBaseImage from '../../../assets/images/LOGO_MoonLight.png';
+import siteLogo from '../../../assets/images/moon-ui.webp';
+import heroRevealImage from '../../../assets/images/LOGO-hero.webp';
+import heroBaseImage from '../../../assets/images/LOGO_MoonLight-hero.webp';
 import { AnimatedText } from '../../../shared/components/AnimatedText';
 import { FadeIn } from '../../../shared/components/FadeIn';
 import type { PublicCopy, PublicLanguage } from '../i18n';

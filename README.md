@@ -15,6 +15,7 @@ Portfolio and lightweight CMS for MoonLight Studio. The public site presents stu
 - npm.
 - MongoDB Atlas or another MongoDB connection string.
 - Cloudinary account for CMS media uploads.
+- Gmail account with an App Password if lead notification email should be enabled.
 
 ## Local Setup
 
@@ -44,6 +45,7 @@ Update `server/.env` with real MongoDB, JWT, and Cloudinary values.
 Client:
 
 - `VITE_API_BASE_URL` - API base URL, for example `http://localhost:4000/api`.
+- `VITE_PUBLIC_SITE_URL` - public site URL for launch metadata, for example the Cloudflare Pages URL first and the custom domain later.
 
 Server:
 
@@ -55,17 +57,27 @@ Server:
 - `CLOUDINARY_CLOUD_NAME` - Cloudinary cloud name.
 - `CLOUDINARY_API_KEY` - Cloudinary API key.
 - `CLOUDINARY_API_SECRET` - Cloudinary API secret.
+- `SMTP_HOST` - Gmail SMTP host, normally `smtp.gmail.com`.
+- `SMTP_PORT` - Gmail SMTP port, normally `465`.
+- `SMTP_SECURE` - `true` for Gmail port `465`.
+- `SMTP_USER` - Gmail address used to send lead notifications.
+- `SMTP_APP_PASSWORD` - Gmail App Password, not the normal Gmail login password.
+- `LEAD_NOTIFICATION_TO` - destination email for new lead notifications.
+- `LEAD_NOTIFICATION_FROM` - sender label/address for lead notifications.
 - `ADMIN_EMAIL` - used only by `npm run seed:admin`.
 - `ADMIN_PASSWORD` - used only by `npm run seed:admin`; must be at least 12 characters.
+- `ADMIN_ROLE` - used only by `npm run seed:admin`; use `owner` for the first account.
 
 ## Admin Seed
 
-Create or update the initial admin user:
+Create or update the initial owner account:
 
 ```bash
 cd server
 npm run seed:admin
 ```
+
+Use `ADMIN_ROLE=owner` for the first account. After that, the owner can manage additional `owner` and `admin` accounts from `/admin/users`.
 
 ## Development
 
@@ -110,9 +122,10 @@ npm run build
 The intended public setup is:
 
 - Frontend on Cloudflare Pages.
-- Backend API on a separate Node host such as Render, Railway, or Fly.
+- Backend API on Render.
 - Database on MongoDB Atlas.
 - Media uploads through Cloudinary.
+- Lead notifications through Gmail SMTP.
 
 For Cloudflare Pages:
 
@@ -120,35 +133,43 @@ For Cloudflare Pages:
 - Build output directory: `dist`
 - Root directory: `client`
 - Set `VITE_API_BASE_URL` to the production API URL ending in `/api`.
+- Set `VITE_PUBLIC_SITE_URL` to the Cloudflare Pages URL first. Replace it with the custom domain later.
+- Keep `client/public/_redirects` so direct visits to `/admin` and other SPA routes resolve to `index.html`.
 
-For the backend host:
+For Render:
 
 - Root directory: `server`
 - Build command: `npm run build`
 - Start command: `npm run start`
 - Set `CLIENT_ORIGIN` to the Cloudflare Pages production URL.
+- Add all server environment variables from `server/.env.example`.
+- Run `npm run seed:admin` once from a local machine or a Render shell with `ADMIN_ROLE=owner`.
 
 The SEO files in `client/public/robots.txt` and `client/public/sitemap.xml` currently use `https://example.com`. Replace that placeholder with the real production domain before launch.
 
+The canonical URL in `client/index.html` also uses `https://example.com/`. Replace it with the Cloudflare Pages URL for the first launch, then with the custom domain later.
+
+## Gmail App Password
+
+To enable lead notification email:
+
+1. Enable 2-Step Verification on the Gmail account.
+2. Create an App Password in the Google Account security settings.
+3. Set `SMTP_USER` to the Gmail address.
+4. Set `SMTP_APP_PASSWORD` to the generated app password.
+5. Set `LEAD_NOTIFICATION_TO` to the inbox that should receive new leads.
+
+If SMTP variables are missing or delivery fails, the API still stores the lead in MongoDB and logs the notification status.
+
 ## Performance Notes
 
-Several local image assets are still too large for a polished public launch:
-
-- `client/src/assets/images/LOGO.png` - about 8.4 MB.
-- `client/src/assets/images/LogoML_16x9.png` - about 9.9 MB.
-- `client/src/assets/images/LOGO_MoonLight.png` - about 5.7 MB.
-- `client/src/assets/images/ML_Alpha.png` - about 9.1 MB.
-- `client/src/assets/images/moon.jpg` - about 7.1 MB.
-- `client/src/assets/images/moon.png` - about 8.6 MB.
-
-Before final production, replace these with resized WebP or AVIF assets sized for their actual display usage. Keep the original files outside the deployed bundle if they are needed as source artwork.
+The production bundle imports resized WebP images for the hero and UI logos. Original high-resolution PNG/JPG assets remain in `client/src/assets/images` as source artwork, but they are not imported by the launch UI.
 
 ## Phase 2 Roadmap
 
-These items are intentionally outside the current preview cleanup:
+These items are intentionally outside the current launch readiness work:
 
-- Gmail notification when a new lead is submitted.
-- English default public content with Vietnamese toggle.
-- Admin Users page with `owner` and `admin` roles.
-- Production security hardening: rate limits, Helmet, CAPTCHA or honeypot, and stronger admin session handling.
-- Final Cloudflare Pages deployment and custom domain configuration.
+- Replace JWT localStorage auth with HttpOnly cookie sessions.
+- Add CAPTCHA or a honeypot to the public contact form if spam appears after launch.
+- Add analytics and uptime monitoring.
+- Replace the Cloudflare Pages temporary domain with the final custom domain.

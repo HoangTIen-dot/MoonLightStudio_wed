@@ -1,4 +1,4 @@
-import siteLogo from '../../assets/images/ML_Alpha.png';
+import siteLogo from '../../assets/images/ML_Alpha-ui.webp';
 
 export function NotFoundPage() {
   return (

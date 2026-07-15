@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { ArrowRight, LockKeyhole } from 'lucide-react';
-import siteLogo from '../../assets/images/ML_Alpha.png';
+import siteLogo from '../../assets/images/ML_Alpha-ui.webp';
 import { loginAdmin, saveAdminToken } from '../../features/auth/auth.service';
 
 export function AdminLoginPage() {

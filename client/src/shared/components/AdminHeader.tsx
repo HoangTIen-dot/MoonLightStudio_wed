@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import siteLogo from '../../assets/images/moon.png';
+import siteLogo from '../../assets/images/moon-ui.webp';
 
 type AdminHeaderProps = {
   backToDashboard?: boolean;
