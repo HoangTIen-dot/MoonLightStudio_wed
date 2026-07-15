@@ -3,8 +3,9 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { env } from './config/env.js';
-import { requireAdmin } from './middlewares/auth.middleware.js';
+import { requireAdmin, requireOwner } from './middlewares/auth.middleware.js';
 import { errorMiddleware } from './middlewares/error.middleware.js';
+import { adminUserRoutes } from './modules/admin-users/admin-user.routes.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { adminBrandRoutes, publicBrandRoutes } from './modules/brands/brand.routes.js';
 import { adminLeadRoutes, publicLeadRoutes } from './modules/leads/lead.routes.js';
@@ -56,6 +57,7 @@ app.use('/api/admin/brands', requireAdmin, adminBrandRoutes);
 app.use('/api/admin/leads', requireAdmin, adminLeadRoutes);
 app.use('/api/admin/projects', requireAdmin, adminProjectRoutes);
 app.use('/api/admin/uploads', requireAdmin, uploadRoutes);
+app.use('/api/admin/users', requireAdmin, requireOwner, adminUserRoutes);
 app.use('/api/admin/videos', requireAdmin, adminVideoRoutes);
 
 app.use(errorMiddleware);

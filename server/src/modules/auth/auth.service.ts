@@ -1,11 +1,11 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env.js';
-import { AdminUserModel } from './admin-user.model.js';
+import { AdminUserModel, type AdminRole } from './admin-user.model.js';
 
-type AdminJwtPayload = {
+export type AdminJwtPayload = {
   userId: string;
-  role: 'admin';
+  role: AdminRole;
 };
 
 const TOKEN_EXPIRES_IN = '7d';
@@ -25,7 +25,7 @@ export async function loginAdmin(email: string, password: string): Promise<{ tok
 
   const payload: AdminJwtPayload = {
     userId: admin._id.toString(),
-    role: 'admin',
+    role: admin.role,
   };
 
   return {
@@ -44,5 +44,9 @@ export function verifyAdminToken(token: string): AdminJwtPayload {
 }
 
 function isAdminJwtPayload(payload: string | jwt.JwtPayload): payload is AdminJwtPayload {
-  return typeof payload !== 'string' && typeof payload.userId === 'string' && payload.role === 'admin';
+  return (
+    typeof payload !== 'string' &&
+    typeof payload.userId === 'string' &&
+    (payload.role === 'owner' || payload.role === 'admin')
+  );
 }

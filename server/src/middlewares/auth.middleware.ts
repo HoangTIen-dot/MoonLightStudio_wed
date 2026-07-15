@@ -17,3 +17,12 @@ export const requireAdmin: RequestHandler = (req, res, next) => {
     res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
+
+export const requireOwner: RequestHandler = (_req, res, next) => {
+  if (res.locals.admin?.role !== 'owner') {
+    res.status(403).json({ message: 'Owner access required' });
+    return;
+  }
+
+  next();
+};

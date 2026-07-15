@@ -2,6 +2,8 @@ import mongoose, { type InferSchemaType, type Model } from 'mongoose';
 
 const { Schema } = mongoose;
 
+export type AdminRole = 'owner' | 'admin';
+
 const adminUserSchema = new Schema(
   {
     email: {
@@ -19,9 +21,10 @@ const adminUserSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ['admin'],
+      enum: ['owner', 'admin'],
       default: 'admin',
       required: true,
+      index: true,
     },
   },
   {

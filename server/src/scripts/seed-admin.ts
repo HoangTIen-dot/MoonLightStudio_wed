@@ -7,6 +7,7 @@ import { AdminUserModel } from '../modules/auth/admin-user.model.js';
 const seedEnvSchema = z.object({
   ADMIN_EMAIL: z.string().email(),
   ADMIN_PASSWORD: z.string().min(12),
+  ADMIN_ROLE: z.enum(['owner', 'admin']).default('owner'),
 });
 
 async function seedAdmin() {
@@ -21,7 +22,7 @@ async function seedAdmin() {
     {
       email,
       passwordHash,
-      role: 'admin',
+      role: seedEnv.ADMIN_ROLE,
     },
     {
       new: true,
@@ -31,7 +32,7 @@ async function seedAdmin() {
     },
   );
 
-  console.log(`Seeded admin user: ${admin.email}`);
+  console.log(`Seeded ${admin.role} user: ${admin.email}`);
 }
 
 try {
