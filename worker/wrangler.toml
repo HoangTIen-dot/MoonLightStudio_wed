@@ -8,6 +8,6 @@ database_name = "moonlight-cms"
 database_id = "f561f64e-ea16-4d04-ad15-7bc9333ef823"
 
 [vars]
-CLIENT_ORIGIN = "http://localhost:5173"
+CLIENT_ORIGIN = "https://moonlightstudio-wed.pages.dev"
 CLOUDINARY_UPLOAD_FOLDER = "moonlight-cms"
 ADMIN_ROLE = "owner"
