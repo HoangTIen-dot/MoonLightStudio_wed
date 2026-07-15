@@ -3,12 +3,8 @@ import { getPublicBrands, type Brand } from '../../brands/brand.service';
 import { marqueeRows } from '../homepage.data';
 import type { PublicCopy } from '../i18n';
 
-function getBrandTileUrl(imageUrl: string) {
-  if (!imageUrl.includes('/image/upload/')) {
-    return imageUrl;
-  }
-
-  return imageUrl.replace('/image/upload/', '/image/upload/c_pad,w_1400,h_800,b_auto,f_auto,q_auto/');
+export function getBrandTileUrl(imageUrl: string) {
+  return imageUrl;
 }
 
 type MarqueeSectionProps = {
