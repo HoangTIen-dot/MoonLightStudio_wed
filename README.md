@@ -5,7 +5,8 @@ Portfolio and lightweight CMS for MoonLight Studio. The public site presents stu
 ## Project Structure
 
 - `client/` - Vite, React, Tailwind frontend.
-- `server/` - Express, TypeScript, MongoDB API.
+- `server/` - Express, TypeScript, MongoDB API fallback.
+- `worker/` - Cloudflare Workers and D1 API for the Cloudflare launch path.
 - `docs/superpowers/specs/` - approved design notes.
 - `docs/superpowers/plans/` - implementation plans.
 
@@ -13,7 +14,8 @@ Portfolio and lightweight CMS for MoonLight Studio. The public site presents stu
 
 - Node.js 20 or newer.
 - npm.
-- MongoDB Atlas or another MongoDB connection string.
+- Cloudflare account with Pages, Workers, and D1 enabled.
+- MongoDB Atlas only if using the legacy `server/` backend.
 - Cloudinary account for CMS media uploads.
 - Gmail account with an App Password if lead notification email should be enabled.
 
@@ -119,13 +121,13 @@ npm run build
 
 ## Preview Deploy Notes
 
-The intended public setup is:
+The intended public setup is now Cloudflare-native:
 
 - Frontend on Cloudflare Pages.
-- Backend API on Render.
-- Database on MongoDB Atlas.
+- Backend API on Cloudflare Workers.
+- Database on Cloudflare D1.
 - Media uploads through Cloudinary.
-- Lead notifications through Gmail SMTP.
+- Lead notifications are deferred to a later phase for the Worker launch path.
 
 For Cloudflare Pages:
 
@@ -136,7 +138,61 @@ For Cloudflare Pages:
 - Set `VITE_PUBLIC_SITE_URL` to the Cloudflare Pages URL first. Replace it with the custom domain later.
 - Keep `client/public/_redirects` so direct visits to `/admin` and other SPA routes resolve to `index.html`.
 
-For Render:
+For Cloudflare Workers + D1:
+
+```bash
+cd worker
+npm install
+npm run typecheck
+npm test
+```
+
+Create the D1 database:
+
+```bash
+npx wrangler d1 create moonlight-cms
+```
+
+Copy the returned database id into `worker/wrangler.toml`, replacing `replace-with-cloudflare-d1-database-id`.
+
+Apply migrations:
+
+```bash
+npx wrangler d1 migrations apply moonlight-cms
+```
+
+Set Worker secrets:
+
+```bash
+npx wrangler secret put JWT_SECRET
+npx wrangler secret put SEED_SECRET
+npx wrangler secret put ADMIN_EMAIL
+npx wrangler secret put ADMIN_PASSWORD
+npx wrangler secret put CLOUDINARY_CLOUD_NAME
+npx wrangler secret put CLOUDINARY_API_KEY
+npx wrangler secret put CLOUDINARY_API_SECRET
+```
+
+Deploy the Worker:
+
+```bash
+npm run deploy
+```
+
+Seed the first owner after deployment:
+
+```bash
+curl -X POST https://<worker-url>/api/seed/owner -H "x-seed-secret: <SEED_SECRET>"
+```
+
+After the owner is seeded, rotate or remove `SEED_SECRET` so the seed endpoint cannot be reused casually.
+
+Set Cloudflare Pages env:
+
+- `VITE_API_BASE_URL=https://<worker-url>/api`
+- `VITE_PUBLIC_SITE_URL=https://<cloudflare-pages-url>`
+
+For the legacy Render backend fallback:
 
 - Root directory: `server`
 - Build command: `npm run build`

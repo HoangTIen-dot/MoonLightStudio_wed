@@ -5,6 +5,7 @@ import { authRoutes } from './modules/auth';
 import { adminBrandRoutes, publicBrandRoutes } from './modules/brands';
 import { adminLeadRoutes, publicLeadRoutes } from './modules/leads';
 import { adminProjectRoutes, publicProjectRoutes } from './modules/projects';
+import { seedRoutes } from './modules/seed';
 import { uploadRoutes } from './modules/uploads';
 import { adminVideoRoutes, publicVideoRoutes } from './modules/videos';
 import { requireAdmin } from './lib/http';
@@ -12,6 +13,7 @@ import { requireAdmin } from './lib/http';
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 app.get('/api/health', (c) => c.json({ status: 'ok' }));
+app.route('/api/seed', seedRoutes);
 app.route('/api/auth', authRoutes);
 app.route('/api/public/brands', publicBrandRoutes);
 app.route('/api/public/leads', publicLeadRoutes);
