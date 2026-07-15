@@ -1,4 +1,4 @@
-import { ArrowUpRight, Building2, FolderKanban, Inbox, LogOut } from 'lucide-react';
+import { ArrowUpRight, Building2, FolderKanban, Inbox, LogOut, ShieldCheck } from 'lucide-react';
 import { clearAdminToken, hasAdminToken } from '../../features/auth/auth.service';
 import { AdminHeader } from '../../shared/components/AdminHeader';
 
@@ -25,6 +25,14 @@ const adminAreas = [
     icon: Inbox,
     endpoint: 'GET/PATCH /api/admin/leads',
     href: '/admin/leads',
+    enabled: true,
+  },
+  {
+    title: 'Admin Users',
+    description: 'Owner-only user management for CMS access and roles.',
+    icon: ShieldCheck,
+    endpoint: 'GET/POST /api/admin/users',
+    href: '/admin/users',
     enabled: true,
   },
 ];

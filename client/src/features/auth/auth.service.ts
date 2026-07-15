@@ -2,7 +2,7 @@ import { apiRequest } from '../../shared/lib/api';
 
 export type AdminSession = {
   userId: string;
-  role: 'admin';
+  role: 'owner' | 'admin';
 };
 
 export async function loginAdmin(email: string, password: string) {

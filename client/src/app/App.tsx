@@ -4,6 +4,7 @@ import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
 import { AdminLeadsPage } from '../pages/admin/AdminLeadsPage';
 import { AdminLoginPage } from '../pages/admin/AdminLoginPage';
 import { AdminProjectsPage } from '../pages/admin/AdminProjectsPage';
+import { AdminUsersPage } from '../pages/admin/AdminUsersPage';
 import { HomePage } from '../pages/public/HomePage';
 import { NotFoundPage } from '../pages/public/NotFoundPage';
 import { AdminAuthGate } from '../features/auth/AdminAuthGate';
@@ -33,6 +34,10 @@ function App() {
 
   if (pathname === '/admin/leads') {
     return renderAdminPage(<AdminLeadsPage />);
+  }
+
+  if (pathname === '/admin/users') {
+    return renderAdminPage(<AdminUsersPage />);
   }
 
   if (pathname === '/admin/videos') {
