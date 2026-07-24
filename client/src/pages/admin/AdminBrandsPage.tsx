@@ -14,105 +14,8 @@ import { AdminHeader } from '../../shared/components/AdminHeader';
 type SaveState = 'idle' | 'saving' | 'complete' | 'failed';
 const BRAND_NAME_LIMIT = 80;
 
-function brandNameFromFile(fileName: string) {
-  const nameWithoutExtension = fileName.replace(/\.[^/.]+$/, '');
-  return nameWithoutExtension.replace(/[-_]+/g, ' ').trim() || `Brand ${Date.now()}`;
-}
-
-function loadImageFromFile(file: File) {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-    const objectUrl = URL.createObjectURL(file);
-
-    image.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      resolve(image);
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error('Could not read image file'));
-    };
-    image.src = objectUrl;
-  });
-}
-
-function drawCoverImage(
-  context: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-) {
-  const imageRatio = image.naturalWidth / image.naturalHeight;
-  const targetRatio = width / height;
-  const drawWidth = imageRatio > targetRatio ? height * imageRatio : width;
-  const drawHeight = imageRatio > targetRatio ? height : width / imageRatio;
-  const drawX = x + (width - drawWidth) / 2;
-  const drawY = y + (height - drawHeight) / 2;
-
-  context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
-}
-
-function drawContainImage(
-  context: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-) {
-  const imageRatio = image.naturalWidth / image.naturalHeight;
-  const targetRatio = width / height;
-  const drawWidth = imageRatio > targetRatio ? width : height * imageRatio;
-  const drawHeight = imageRatio > targetRatio ? width / imageRatio : height;
-  const drawX = x + (width - drawWidth) / 2;
-  const drawY = y + (height - drawHeight) / 2;
-
-  context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
-}
-
-async function createBrandTileFile(file: File) {
-  const image = await loadImageFromFile(file);
-  const canvas = document.createElement('canvas');
-  const width = 1400;
-  const height = 800;
-  const context = canvas.getContext('2d');
-
-  if (!context) {
-    throw new Error('Canvas is not available');
-  }
-
-  canvas.width = width;
-  canvas.height = height;
-
-  context.fillStyle = '#0c0c0c';
-  context.fillRect(0, 0, width, height);
-
-  context.save();
-  context.filter = 'blur(42px)';
-  drawCoverImage(context, image, -80, -80, width + 160, height + 160);
-  context.restore();
-
-  context.fillStyle = 'rgba(0, 0, 0, 0.16)';
-  context.fillRect(0, 0, width, height);
-
-  const safeX = width * 0.12;
-  const safeY = height * 0.14;
-  const safeWidth = width - safeX * 2;
-  const safeHeight = height - safeY * 2;
-
-  drawContainImage(context, image, safeX, safeY, safeWidth, safeHeight);
-
-  const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(resolve, 'image/webp', 0.92);
-  });
-
-  if (!blob) {
-    throw new Error('Could not create brand tile');
-  }
-
-  return new File([blob], `${brandNameFromFile(file.name)}-brand-tile.webp`, { type: 'image/webp' });
+export async function prepareBrandUploadFile(file: File) {
+  return file;
 }
 
 export function AdminBrandsPage() {
@@ -175,15 +78,9 @@ export function AdminBrandsPage() {
     setError('');
 
     if (file) {
-      try {
-        const normalizedFile = await createBrandTileFile(file);
-        setSelectedFile(normalizedFile);
-        setPreviewUrl(URL.createObjectURL(normalizedFile));
-      } catch {
-        setSelectedFile(file);
-        setPreviewUrl(URL.createObjectURL(file));
-        setError('Could not auto-fit this image. The original image will be uploaded.');
-      }
+      const uploadFile = await prepareBrandUploadFile(file);
+      setSelectedFile(uploadFile);
+      setPreviewUrl(URL.createObjectURL(uploadFile));
     }
   }
 
@@ -321,7 +218,7 @@ export function AdminBrandsPage() {
                 Choose image
               </span>
               <span className="mt-1 text-sm text-zinc-500">
-                PNG, JPG, WebP files. The image is auto-fitted for the website.
+                PNG, JPG, WebP files. The preview uses the same crop as the website.
               </span>
             </label>
 
